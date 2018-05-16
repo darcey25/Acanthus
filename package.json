@@ -28,15 +28,17 @@
     "dependencies": {
         "bootstrap": "4.1.1",
         "font-awesome": "4.7.0",
+        "hoek": "^4.2.1",
         "jquery": "3.3.1",
+        "popper.js": "^1.14.3",
         "vide": "^0.5.1"
     },
     "devDependencies": {
-        "browser-sync": "2.24.3",
+        "browser-sync": "^2.24.4",
         "gulp": "^3.9.1",
         "gulp-clean-css": "3.9.4",
         "gulp-header": "2.0.5",
-        "gulp-rename": "^1.2.2",
+        "gulp-rename": "^1.2.3",
         "gulp-sass": "4.0.1",
         "gulp-uglify": "3.0.0"
     }

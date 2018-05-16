@@ -8,16 +8,18 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Merriweather';
-  font-weight: 700;
+  font-family:'cooper-black-std','serif';
+  font-style:normal;
+  font-weight: 400;
 }
 
 body {
   height: 100%;
   min-height: 35rem;
   position: relative;
-  font-family: 'Source Sans Pro';
-  font-weight: 300;
+  font-family:'europa','sans-serif';
+  font-style:normal;
+  font-weight:300;
 }
 
 .overlay {
@@ -51,7 +53,7 @@ body {
   width: 100%;
   min-height: 35rem;
   height: 100%;
-  background-color: rgba(0, 46, 102, 0.8);
+  background-color: rgba(136, 52, 85, .8);
   transform: skewY(4deg);
   transform-origin: bottom right;
 }
@@ -126,7 +128,7 @@ body {
 .social-icons ul > li > a {
   display: block;
   color: white;
-  background-color: rgba(0, 46, 102, 0.8);
+  background-color: rgba(136, 52, 85, .8);
   border-radius: 100%;
   font-size: 2rem;
   line-height: 4rem;
@@ -163,18 +165,18 @@ body {
     width: 4rem;
   }
   .social-icons ul > li > a:hover {
-    background-color: #002E66;
+    background-color: #8a8b61;
   }
 }
 
 .btn-secondary {
-  background-color: #cd9557;
-  border-color: #cd9557;
+  background-color: #8a8b61;
+  border-color: #8a8b61;
 }
 
 .btn-secondary:active, .btn-secondary:focus, .btn-secondary:hover {
-  background-color: #ba7c37 !important;
-  border-color: #ba7c37 !important;
+  background-color: #c1a239 !important;
+  border-color: #c1a239 !important;
 }
 
 .input {
