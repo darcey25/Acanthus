@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var sass = require('gulp-sass');
+var sass = require('gulp-sass')(require('sass'));
 var header = require('gulp-header');
 var cleanCSS = require('gulp-clean-css');
 var rename = require("gulp-rename");
@@ -16,59 +16,49 @@ var banner = ['/*!\n',
   ''
 ].join('');
 
-// Copy third party libraries from /node_modules into /vendor
-gulp.task('vendor', function() {
+// Copy third party libraries from /node_modules into /vendor.
+// Gulp 5 decodes files as text unless told otherwise, which corrupts fonts.
+function copy(globs, dest) {
+  return function() {
+    return gulp.src(globs, { encoding: false }).pipe(gulp.dest(dest));
+  };
+}
 
+var vendor = gulp.parallel(
   // Bootstrap
-  gulp.src([
-      './node_modules/bootstrap/dist/**/*',
-      '!./node_modules/bootstrap/dist/css/bootstrap-grid*',
-      '!./node_modules/bootstrap/dist/css/bootstrap-reboot*'
-    ])
-    .pipe(gulp.dest('./vendor/bootstrap'))
-
+  copy([
+    './node_modules/bootstrap/dist/**/*',
+    '!./node_modules/bootstrap/dist/css/bootstrap-grid*',
+    '!./node_modules/bootstrap/dist/css/bootstrap-reboot*'
+  ], './vendor/bootstrap'),
   // Font Awesome
-  gulp.src([
-      './node_modules/font-awesome/**/*',
-      '!./node_modules/font-awesome/{less,less/*}',
-      '!./node_modules/font-awesome/{scss,scss/*}',
-      '!./node_modules/font-awesome/.*',
-      '!./node_modules/font-awesome/*.{txt,json,md}'
-    ])
-    .pipe(gulp.dest('./vendor/font-awesome'))
-
+  copy([
+    './node_modules/font-awesome/**/*',
+    '!./node_modules/font-awesome/{less,less/*}',
+    '!./node_modules/font-awesome/{scss,scss/*}',
+    '!./node_modules/font-awesome/.*',
+    '!./node_modules/font-awesome/*.{txt,json,md}'
+  ], './vendor/font-awesome'),
   // jQuery
-  gulp.src([
-      './node_modules/jquery/dist/*',
-      '!./node_modules/jquery/dist/core.js'
-    ])
-    .pipe(gulp.dest('./vendor/jquery'))
-
-  // jQuery Easing
-  gulp.src([
-      './node_modules/jquery.easing/*.js'
-    ])
-    .pipe(gulp.dest('./vendor/jquery-easing'))
-
+  copy([
+    './node_modules/jquery/dist/*',
+    '!./node_modules/jquery/dist/core.js'
+  ], './vendor/jquery'),
   // Vide.js
-  gulp.src([
-      './node_modules/vide/dist/*'
-    ])
-    .pipe(gulp.dest('./vendor/vide'))
-
-});
+  copy(['./node_modules/vide/dist/*'], './vendor/vide')
+);
 
 // Compile SCSS
-gulp.task('css:compile', function() {
+function cssCompile() {
   return gulp.src('./scss/**/*.scss')
     .pipe(sass.sync({
       outputStyle: 'expanded'
     }).on('error', sass.logError))
-    .pipe(gulp.dest('./css'))
-});
+    .pipe(gulp.dest('./css'));
+}
 
 // Minify CSS
-gulp.task('css:minify', ['css:compile'], function() {
+function cssMinify() {
   return gulp.src([
       './css/*.css',
       '!./css/*.min.css'
@@ -79,13 +69,12 @@ gulp.task('css:minify', ['css:compile'], function() {
     }))
     .pipe(gulp.dest('./css'))
     .pipe(browserSync.stream());
-});
+}
 
-// CSS
-gulp.task('css', ['css:compile', 'css:minify']);
+var css = gulp.series(cssCompile, cssMinify);
 
 // Minify JavaScript
-gulp.task('js:minify', function() {
+function jsMinify() {
   return gulp.src([
       './js/*.js',
       '!./js/*.min.js'
@@ -96,27 +85,27 @@ gulp.task('js:minify', function() {
     }))
     .pipe(gulp.dest('./js'))
     .pipe(browserSync.stream());
-});
-
-// JS
-gulp.task('js', ['js:minify']);
-
-// Default task
-gulp.task('default', ['css', 'js', 'vendor']);
+}
 
 // Configure the browserSync task
-gulp.task('browserSync', function() {
+function serve(done) {
   browserSync.init({
     server: {
       baseDir: "./"
     }
   });
-});
+  done();
+}
 
-// Dev task
-gulp.task('dev', ['browserSync'], function() {
-  gulp.watch('./css/*.css', browserSync.reload);
-  gulp.watch('./scss/*.scss', ['css']);
-  gulp.watch('./js/*.js', ['js']);
-  gulp.watch('./*.html', browserSync.reload);
-});
+function watch() {
+  gulp.watch('./css/*.css').on('change', browserSync.reload);
+  gulp.watch('./scss/*.scss', css);
+  gulp.watch(['./js/*.js', '!./js/*.min.js'], jsMinify);
+  gulp.watch('./*.html').on('change', browserSync.reload);
+}
+
+exports.vendor = vendor;
+exports.css = css;
+exports.js = jsMinify;
+exports.default = gulp.parallel(css, jsMinify, vendor);
+exports.dev = gulp.series(serve, watch);
